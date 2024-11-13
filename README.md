@@ -1,11 +1,12 @@
-### GENERAL INFORMATION:
+# MelonLoader Unity Dependencies
 
-- Unity Runtime Libraries used by [MelonLoader](https://github.com/LavaGang/MelonLoader) for Assembly Generation.
-- If you wish to generate ZIP Archives to add to this Repository you can easily do so using [UDGB](https://github.com/LavaGang/UDGB)
+This repository contains Unity Runtime Libraries (under the releases section) used by [MelonLoader](https://github.com/LavaGang/MelonLoader) for Assembly Generation.
 
----
+## Generator
 
-### LICENSING & CREDITS:
+The generator project is used by a workflow to automatically generate Unity Runtime Libraries.
+
+## LICENSING & CREDITS
 
 - Unity Runtime Libraries are part of Unity Software.  
 Their usage is subject to [Unity Terms of Service](https://unity3d.com/legal/terms-of-service), including [Unity Software Additional Terms](https://unity3d.com/legal/terms-of-service/software).
