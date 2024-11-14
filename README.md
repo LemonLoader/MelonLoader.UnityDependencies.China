@@ -8,6 +8,8 @@ The generator project is used by a workflow to automatically generate Unity Runt
 
 ## LICENSING & CREDITS
 
+The generator project itself is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/LavaGang/MelonLoader.UnityDependencies/blob/main/Generator/LICENSE.md) for the full License.
+
 Third-party Libraries used as Source Code and/or bundled in Binary Form:
 
 - [octokit.net](https://github.com/octokit/octokit.net) is licensed under the MIT License. See [LICENSE](https://github.com/octokit/octokit.net/blob/main/LICENSE.txt) for the full License.
