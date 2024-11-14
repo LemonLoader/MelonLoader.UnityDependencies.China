@@ -66,6 +66,10 @@ internal static class Program
 
     private static async Task ProcessVersionAsync(UnityVersion version)
     {
+        // Exclude older versions that do not have the android support bundle
+        if (version.Major < 5 || version is { Major: 5, Minor: < 3 })
+            return;
+        
         Console.WriteLine();
         Console.WriteLine($"Processing version {version}");
 
