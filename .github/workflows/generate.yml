@@ -19,8 +19,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-      - name: Setup 7-Zip
-        uses: milliewalky/setup-7-zip@v1
       
       - name: Build and Run Generator
         run: dotnet run -c Release -- LavaGang MelonLoader.UnityDependencies main
