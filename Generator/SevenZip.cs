@@ -15,7 +15,10 @@ public static class SevenZip
         
         args.AddRange(fileFilter);
         
-        var proc = Process.Start(sevenZipPath, args);
+        var proc = Process.Start(new ProcessStartInfo(sevenZipPath, args)
+        {
+            RedirectStandardOutput = true
+        })!;
         await proc.WaitForExitAsync();
         if (proc.ExitCode != 0)
             throw new($"7z exit code: {proc.ExitCode}");
