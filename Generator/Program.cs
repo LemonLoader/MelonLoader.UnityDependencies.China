@@ -13,7 +13,7 @@ internal static class Program
     private static string repoName = null!;
     private static string repoMainBranch = null!;
 
-    private static readonly GitHubClient github = new GitHubClient(new ProductHeaderValue("MelonLoader.UnityDependencies Generator"));
+    private static readonly GitHubClient github = new GitHubClient(new ProductHeaderValue("MelonLoader.UnityDependencies"));
     
     private static readonly HttpClient http = new();
     private static readonly int[] majorVersions =
