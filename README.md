@@ -8,6 +8,13 @@ The generator project is used by a workflow to automatically generate Unity Runt
 
 ## LICENSING & CREDITS
 
+Third-party Libraries used as Source Code and/or bundled in Binary Form:
+
+- [octokit.net](https://github.com/octokit/octokit.net) is licensed under the MIT License. See [LICENSE](https://github.com/octokit/octokit.net/blob/main/LICENSE.txt) for the full License.
+
+External Libraries and Tools that are downloaded and/or used:
+
+- [7-Zip](https://www.7-zip.org/) is licensed under the GNU LGPL License. See [LICENSE](https://www.7-zip.org/license.txt) for the full License.
 - Unity Runtime Libraries are part of Unity Software.  
 Their usage is subject to [Unity Terms of Service](https://unity3d.com/legal/terms-of-service), including [Unity Software Additional Terms](https://unity3d.com/legal/terms-of-service/software).
 
