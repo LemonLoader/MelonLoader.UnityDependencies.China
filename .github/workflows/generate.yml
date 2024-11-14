@@ -1,0 +1,28 @@
+name: Fetch Dependencies
+
+on:
+  schedule:
+    - cron: '20 2,14 * * *'
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  fetchdeps:
+    name: Fetch Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Setup 7-Zip
+        uses: milliewalky/setup-7-zip@v1
+      
+      - name: Build and Run Generator
+        run: dotnet run -c Release -- LavaGang MelonLoader.UnityDependencies main
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
