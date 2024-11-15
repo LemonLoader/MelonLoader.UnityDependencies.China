@@ -15,7 +15,10 @@ internal static class Program
 
     private static readonly GitHubClient github = new GitHubClient(new ProductHeaderValue("MelonLoader.UnityDependencies"));
     
-    private static readonly HttpClient http = new();
+    private static readonly HttpClient http = new()
+    {
+        Timeout = TimeSpan.FromMinutes(10)
+    };
     private static readonly int[] majorVersions =
     [
         5,
