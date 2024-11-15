@@ -2,7 +2,7 @@ name: Fetch Dependencies
 
 on:
   schedule:
-    - cron: '20 2,14 * * *'
+    - cron: '20 */2 * * *'
   push:
     branches: [ main ]
   workflow_dispatch:
