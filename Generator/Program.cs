@@ -143,7 +143,7 @@ internal static class Program
             });
 
             Console.WriteLine("Uploading Managed.zip");
-            await github.Repository.Release.UploadAsset(release, new("Managed.zip", "application/zip", managedZipStr, null));
+            await github.Repository.Release.UploadAsset(release, new("Managed.zip", "application/zip", managedZipStr, TimeSpan.FromMinutes(10)));
 
             foreach (var dir in Directory.EnumerateDirectories(libsDir))
             {
@@ -157,7 +157,7 @@ internal static class Program
                 
                 Console.WriteLine($"Uploading {assetName}");
                 await using var assetStr = File.OpenRead(libunityPath);
-                await github.Repository.Release.UploadAsset(release, new(assetName, "application/x-msdownload", assetStr, null));
+                await github.Repository.Release.UploadAsset(release, new(assetName, "application/x-msdownload", assetStr, TimeSpan.FromMinutes(10)));
             }
             
             // Undraft it, at which point it becomes public
