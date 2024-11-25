@@ -204,7 +204,10 @@ internal static class Program
         {
             var version = (string)release!["title"]!;
 
-            var downloads = release!["additionalDownloads"]!.AsArray();
+            var downloads = release!["additionalDownloads"]?.AsArray();
+            if (downloads == null)
+                continue;
+
             var macDownloads = downloads.FirstOrDefault(d => d!["architecture"]!.GetValue<string>() == "X86_64" && d!["platform"]!.GetValue<string>() == "MAC_OS");
             var modulesArray = macDownloads?["modules"]?.AsArray();
             var androidModule = modulesArray?.FirstOrDefault(d => d["id"]!.GetValue<string>() == "android");
