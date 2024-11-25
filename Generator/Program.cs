@@ -208,8 +208,6 @@ internal static class Program
             var buildSupportUrl = androidModule?["url"]?.GetValue<string>() ?? string.Empty;
             buildSupportUrl = buildSupportUrl.Replace("unity3d.com", "unitychina.cn"); // no idea why they use unity3d urls in the china api
 
-            Console.WriteLine(buildSupportUrl);
-
             if (!UnityVersion.TryParse(version, buildSupportUrl, out var unityVer))
                 continue;
 
