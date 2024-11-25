@@ -173,7 +173,7 @@ internal static class Program
         foreach (var type in releaseTypes)
         {
             var typeMajors = await GetJsonNodeAsync($"https://unity.cn/api/releases/majors?releaseType={type}");
-            foreach (var major in typeMajors.AsArray())
+            foreach (var major in typeMajors["list"]!.AsArray())
                 if (!majors.Contains((int)major!.AsValue()))
                     majors.Add((int)major!.AsValue());
         }
