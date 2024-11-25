@@ -13,24 +13,17 @@ internal static class Program
     private static string repoName = null!;
     private static string repoMainBranch = null!;
 
-    private static readonly GitHubClient github = new GitHubClient(new ProductHeaderValue("MelonLoader.UnityDependencies"));
+    private static readonly GitHubClient github = new GitHubClient(new ProductHeaderValue("MelonLoader.UnityDependencies.China"));
     
     private static readonly HttpClient http = new()
     {
         Timeout = TimeSpan.FromMinutes(10)
     };
-    private static readonly int[] majorVersions =
-    [
-        5,
-        2017,
-        2018,
-        2019,
-        2020,
-        2021,
-        2022,
-        2023,
-        6,
-        7
+
+    private static readonly string[] releaseTypes = [
+        "lts",
+        "patch",
+        "beta"
     ];
 
     private static async Task Main(string[] args)
@@ -76,7 +69,7 @@ internal static class Program
         Console.WriteLine();
         Console.WriteLine($"Processing version {version}");
 
-        var monoBundleUrl = $"https://download.unity3d.com/download_unity/{version.Id}/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-{version}.pkg";
+        var monoBundleUrl = $"https://download.unitychina.cn/download_unity/{version.Id}/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-{version}.pkg";
 
         var tempDir = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "gen.temp");
         if (Directory.Exists(tempDir))
@@ -175,61 +168,73 @@ internal static class Program
 
     private static async Task<IEnumerable<UnityVersion>> GetAvailableVersionsAsync(bool latestBuildsOnly = true, bool stableReleasesOnly = true)
     {
-        List<UnityVersion> result = [];
-        foreach (var major in majorVersions)
+        List<int> majors = [];
+
+        foreach (var type in releaseTypes)
         {
-            var body = new JsonObject
-            {
-                ["operationName"] = "GetRelease",
-                ["query"] = "query GetRelease($limit: Int, $skip: Int, $version: String!, $stream: [UnityReleaseStream!]) {\n  getUnityReleases(\n    limit: $limit\n    skip: $skip\n    stream: $stream\n    version: $version\n    entitlements: [XLTS]\n  ) {\n    totalCount\n    edges {\n      node {\n        version\n        entitlements\n        releaseDate\n        unityHubDeepLink\n        stream\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}",
-                ["variables"] = new JsonObject
-                {
-                    ["limit"] = 300,
-                    ["version"] = major.ToString()
-                }
-            };
+            var typeMajors = await GetJsonNodeAsync($"https://unity.cn/api/releases/majors?releaseType={type}");
+            foreach (var major in typeMajors.AsArray())
+                if (!majors.Contains((int)major!.AsValue()))
+                    majors.Add((int)major!.AsValue());
+        }
 
-            var resp = await http.PostAsync("https://services.unity.com/graphql", new StringContent(body.ToJsonString(), MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json)));
-
-            resp.EnsureSuccessStatusCode();
-
-            var content = await resp.Content.ReadAsStringAsync();
-            var edges = JsonNode.Parse(content)!["data"]!["getUnityReleases"]!["edges"]!.AsArray();
-
-            foreach (var edge in edges)
-            {
-                var node = edge!["node"]!;
-                var version = (string)node["version"]!;
-                var hubLink = (string)node["unityHubDeepLink"]!;
-                
-                var lastSlashIdx = hubLink.LastIndexOf('/');
-                if (lastSlashIdx == -1)
-                    continue;
-                
-                var id = hubLink[(lastSlashIdx + 1)..];
-                
-                if (!UnityVersion.TryParse(version, id, out var unityVer))
-                    continue;
-
-                if (stableReleasesOnly && unityVer.BuildType != 'f')
-                    continue;
-
-                if (latestBuildsOnly)
-                {
-                    var otherIdx = result.FindIndex(x => x.Major == unityVer.Major && x.Minor == unityVer.Minor && x.Patch == unityVer.Patch && x.BuildType == unityVer.BuildType);
-                    if (otherIdx != -1)
-                    {
-                        if (result[otherIdx].BuildNumber < unityVer.BuildNumber)
-                            result[otherIdx] = unityVer;
-                        
-                        continue;
-                    }
-                }
-                
-                result.Add(unityVer);
-            }
+        List<UnityVersion> result = [];
+        foreach (var major in majors)
+        {
+            foreach (var type in releaseTypes)
+                result.AddRange(await GetVersionsForType(major, type, latestBuildsOnly, stableReleasesOnly));
         }
 
         return result;
+    }
+
+    private static async Task<List<UnityVersion>> GetVersionsForType(int major, string type, bool latestBuildsOnly = true, bool stableReleasesOnly = true)
+    {
+        List<UnityVersion> result = [];
+
+        var resp = await http.GetAsync($"https://unity.cn/api/releases?releaseType={type}&major={major}");
+
+        resp.EnsureSuccessStatusCode();
+
+        var content = await resp.Content.ReadAsStringAsync();
+        var releases = JsonNode.Parse(content)!["list"]!.AsArray();
+
+        foreach (var release in releases)
+        {
+            var version = (string)release!["title"]!;
+            var id = (string)release!["chineseHash"]!;
+
+            if (!UnityVersion.TryParse(version, id, out var unityVer))
+                continue;
+
+            if (stableReleasesOnly && unityVer.BuildType != 'f')
+                continue;
+
+            if (latestBuildsOnly)
+            {
+                var otherIdx = result.FindIndex(x => x.Major == unityVer.Major && x.Minor == unityVer.Minor && x.Patch == unityVer.Patch && x.BuildType == unityVer.BuildType);
+                if (otherIdx != -1)
+                {
+                    if (result[otherIdx].BuildNumber < unityVer.BuildNumber)
+                        result[otherIdx] = unityVer;
+
+                    continue;
+                }
+            }
+
+            result.Add(unityVer);
+        }
+
+        return result;
+    }
+    
+    private static async Task<JsonNode> GetJsonNodeAsync(string url)
+    {
+        var majors = await http.GetAsync(url);
+        majors.EnsureSuccessStatusCode();
+
+        var content = await majors.Content.ReadAsStringAsync();
+
+        return JsonNode.Parse(content)!;
     }
 }
