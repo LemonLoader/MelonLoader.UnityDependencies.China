@@ -7,14 +7,14 @@ public struct UnityVersion
     public required int Patch { get; set; }
     public required char BuildType { get; set; }
     public required int BuildNumber { get; set; }
-    public required string Id { get; set; }
+    public required string DownloadUrl { get; set; }
     
     public string ShortName => $"{Major}.{Minor}.{Patch}";
 
     public readonly override string ToString()
         => $"{Major}.{Minor}.{Patch}{BuildType}{BuildNumber}";
 
-    public static bool TryParse(string value, string id, out UnityVersion unityVersion)
+    public static bool TryParse(string value, string download, out UnityVersion unityVersion)
     {
         unityVersion = default;
         
@@ -51,7 +51,7 @@ public struct UnityVersion
             Patch = patch,
             BuildType = value[i],
             BuildNumber = buildNumber,
-            Id = id
+            DownloadUrl = download
         };
 
         return true;

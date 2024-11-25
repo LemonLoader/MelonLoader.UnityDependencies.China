@@ -69,8 +69,6 @@ internal static class Program
         Console.WriteLine();
         Console.WriteLine($"Processing version {version}");
 
-        var monoBundleUrl = $"https://download.unitychina.cn/download_unity/{version.Id}/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-{version}.pkg";
-
         var tempDir = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "gen.temp");
         if (Directory.Exists(tempDir))
         {
@@ -82,7 +80,7 @@ internal static class Program
             var pkgPath = Path.Combine(tempDir, "mono.pkg");
             
             Console.WriteLine("Downloading the Android Bundle");
-            using (var resp = await http.GetAsync(monoBundleUrl, HttpCompletionOption.ResponseContentRead))
+            using (var resp = await http.GetAsync(version.DownloadUrl, HttpCompletionOption.ResponseContentRead))
             {
                 if (!resp.IsSuccessStatusCode)
                 {
@@ -202,9 +200,17 @@ internal static class Program
         foreach (var release in releases)
         {
             var version = (string)release!["title"]!;
-            var id = (string)release!["chineseHash"]!;
 
-            if (!UnityVersion.TryParse(version, id, out var unityVer))
+            var downloads = release!["additionalDownloads"]!.AsArray();
+            var macDownloads = downloads.FirstOrDefault(d => d!["architecture"]!.GetValue<string>() == "X86_64" && d!["platform"]!.GetValue<string>() == "MAC_OS");
+            var modulesArray = macDownloads?["modules"]?.AsArray();
+            var androidModule = modulesArray?.FirstOrDefault(d => d["id"]!.GetValue<string>() == "android");
+            var buildSupportUrl = androidModule?["url"]?.GetValue<string>() ?? string.Empty;
+            buildSupportUrl = buildSupportUrl.Replace("unity3d.com", "unitychina.cn"); // no idea why they use unity3d urls in the china api
+
+            Console.WriteLine(buildSupportUrl);
+
+            if (!UnityVersion.TryParse(version, buildSupportUrl, out var unityVer))
                 continue;
 
             if (stableReleasesOnly && unityVer.BuildType != 'f')
