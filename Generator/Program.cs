@@ -195,7 +195,10 @@ internal static class Program
         resp.EnsureSuccessStatusCode();
 
         var content = await resp.Content.ReadAsStringAsync();
-        var releases = JsonNode.Parse(content)!["list"]!.AsArray();
+        var releases = JsonNode.Parse(content)!["list"]?.AsArray();
+
+        if (releases == null || releases.Count == 0)
+            return result;
 
         foreach (var release in releases)
         {
