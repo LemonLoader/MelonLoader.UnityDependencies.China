@@ -25,6 +25,6 @@ jobs:
           dotnet-version: 9.0.x
       
       - name: Build and Run Generator
-        run: dotnet run --project Generator/Generator.csproj -c Release -- LavaGang MelonLoader.UnityDependencies main
+        run: dotnet run --project Generator/Generator.csproj -c Release -- LemonLoader MelonLoader.UnityDependencies.China main
         env: 
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
