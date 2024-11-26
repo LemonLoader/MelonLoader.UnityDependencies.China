@@ -213,6 +213,8 @@ internal static class Program
         foreach (var release in releases)
         {
             var version = $"{release!["major"]}.{release!["minor"]}.{release!["maintenance"]}{release!["chinesePostfix"]}";
+            if (!version.EndsWith("c1"))
+                continue; // not sure how to handle non-c1 versions, or if they even matter
             var id = (string)release!["chineseHash"]!;
 
             if (!UnityVersion.TryParse(version, id, out var unityVer))
