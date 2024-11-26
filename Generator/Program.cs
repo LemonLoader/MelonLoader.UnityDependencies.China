@@ -133,7 +133,7 @@ internal static class Program
             catch (ApiValidationException)
             {
             }
-            
+
             // Create a draft release, upload all the assets and undraft it
             Console.WriteLine("Creating a new repo draft release");
             var release = await github.Repository.Release.Create(repoOwner, repoName, new(version.ShortName)
@@ -151,21 +151,21 @@ internal static class Program
                 var libunityPath = Path.Combine(dir, "libunity.so");
                 if (!File.Exists(libunityPath))
                     continue;
-                
+
                 var arch = Path.GetFileName(dir);
 
                 var assetName = $"libunity.so.{arch}";
-                
+
                 Console.WriteLine($"Uploading {assetName}");
                 await using var assetStr = File.OpenRead(libunityPath);
                 await github.Repository.Release.UploadAsset(release, new(assetName, "application/x-msdownload", assetStr, TimeSpan.FromMinutes(10)));
             }
-            
+
             // Undraft it, at which point it becomes public
             var releaseUpdate = release.ToUpdate();
             releaseUpdate.Draft = false;
             await github.Repository.Release.Edit(repoOwner, repoName, release.Id, releaseUpdate);
-            
+
             Console.WriteLine("Done.");
         }
         finally
@@ -213,19 +213,17 @@ internal static class Program
         foreach (var release in releases)
         {
             var version = $"{release!["major"]}.{release!["minor"]}.{release!["maintenance"]}{release!["chinesePostfix"]}";
-            if (!version.EndsWith("c1"))
-                continue; // not sure how to handle non-c1 versions, or if they even matter
             var id = (string)release!["chineseHash"]!;
 
             if (!UnityVersion.TryParse(version, id, out var unityVer))
                 continue;
 
-            if (stableReleasesOnly && unityVer.BuildType != 'f')
+            if (unityVer.Primitive.Type != AssetRipper.Primitives.UnityVersionType.China)
                 continue;
 
             if (latestBuildsOnly)
             {
-                var otherIdx = result.FindIndex(x => x.Major == unityVer.Major && x.Minor == unityVer.Minor && x.Patch == unityVer.Patch && x.BuildType == unityVer.BuildType);
+                var otherIdx = result.FindIndex(x => x.Major == unityVer.Major && x.Minor == unityVer.Minor && x.Patch == unityVer.Patch);
                 if (otherIdx != -1)
                 {
                     if (result[otherIdx].BuildNumber < unityVer.BuildNumber)
