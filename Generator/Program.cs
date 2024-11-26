@@ -122,7 +122,15 @@ internal static class Program
 
             Console.WriteLine("Creating a new repo tag");
             var commitSha = (await github.Repository.Branch.Get(repoOwner, repoName, repoMainBranch)).Commit.Sha;
-            await github.Git.Reference.Create(repoOwner, repoName, new($"refs/tags/{version.ShortName}", commitSha));
+
+            // lazy fix for if the tag already exists
+            try
+            {
+                await github.Git.Reference.Create(repoOwner, repoName, new($"refs/tags/{version.ShortName}", commitSha));
+            }
+            catch (ApiValidationException)
+            {
+            }
             
             // Create a draft release, upload all the assets and undraft it
             Console.WriteLine("Creating a new repo draft release");
